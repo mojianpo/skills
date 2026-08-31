@@ -1,0 +1,4 @@
+interface:
+  display_name: "Document Parsing"
+  short_description: "Parse PDF and Office files into Markdown with tables and OCR"
+  default_prompt: "Parse supplied PDF, Word, Excel, or PowerPoint files into faithful Markdown. Preserve tables, extract images, use the configured OCR service for images or scanned pages, and report uncertainty."

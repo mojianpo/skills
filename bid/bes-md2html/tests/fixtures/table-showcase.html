@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>产品数据分析报告</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: light-dark(#eef2f8, #090d16);
+      --bg-deep: light-dark(#e5eaf3, #060912);
+      --paper: light-dark(rgba(255,255,255,.9), rgba(18,24,38,.92));
+      --paper-solid: light-dark(#fff, #121826);
+      --paper-soft: light-dark(#f5f7fb, #171f30);
+      --text: light-dark(#182033, #e8edf7);
+      --text-strong: light-dark(#0d1424, #fff);
+      --muted: light-dark(#667085, #98a5bb);
+      --line: light-dark(#dce2ec, #2b3549);
+      --line-strong: light-dark(#c9d2e0, #3a4760);
+      --accent: light-dark(#4f46e5, #8b8cff);
+      --accent-strong: light-dark(#3730a3, #b8b5ff);
+      --accent-soft: light-dark(#eeedff, rgba(111,102,255,.15));
+      --cyan: light-dark(#0891b2, #57d9f0);
+      --code: light-dark(#f0f3f8, #0b1120);
+      --shadow: light-dark(0 24px 70px rgba(30,41,59,.12), 0 28px 80px rgba(0,0,0,.38));
+      --shadow-soft: light-dark(0 10px 30px rgba(30,41,59,.08), 0 12px 36px rgba(0,0,0,.24));
+      --radius-lg: 22px;
+      --radius-md: 14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 4%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 28rem),
+        radial-gradient(circle at 95% 12%, color-mix(in srgb, var(--cyan) 11%, transparent), transparent 26rem),
+        linear-gradient(145deg, var(--bg), var(--bg-deep));
+      background-attachment: fixed;
+      color: var(--text);
+      font: 16px/1.75 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+        "PingFang SC", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      content: "";
+      opacity: .3;
+      background-image:
+        linear-gradient(color-mix(in srgb, var(--line) 40%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--line) 40%, transparent) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, #000, transparent 75%);
+    }
+    ::selection { color: #fff; background: var(--accent); }
+    .page-shell {
+      display: grid;
+      grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+      gap: clamp(1.25rem, 3vw, 2.5rem);
+      width: min(100% - 3rem, 1800px);
+      margin: clamp(1.5rem, 4vw, 3.5rem) auto;
+      align-items: start;
+    }
+    .chapter-nav {
+      position: sticky;
+      top: 1.5rem;
+      max-height: calc(100vh - 3rem);
+      padding: 1.1rem;
+      overflow-y: auto;
+      background: var(--paper);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(18px);
+      scrollbar-width: thin;
+      scrollbar-color: var(--line-strong) transparent;
+    }
+    .chapter-nav__header {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: .15rem .2rem .95rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .chapter-nav__mark {
+      display: grid;
+      flex: 0 0 auto;
+      width: 2.25rem;
+      height: 2.25rem;
+      place-items: center;
+      color: #fff;
+      font-size: .82rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      border-radius: 10px;
+      box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 28%, transparent);
+    }
+    .chapter-nav__title {
+      margin: 0;
+      color: var(--text-strong);
+      font-size: .92rem;
+      font-weight: 750;
+      letter-spacing: .02em;
+    }
+    .chapter-nav__hint {
+      margin: .08rem 0 0;
+      color: var(--muted);
+      font-size: .72rem;
+      line-height: 1.35;
+    }
+    .chapter-nav ol {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: chapter;
+    }
+    .chapter-nav li {
+      position: relative;
+      counter-increment: chapter;
+    }
+    .chapter-nav li + li { margin-top: .28rem; }
+    .chapter-nav a {
+      display: grid;
+      grid-template-columns: 1.8rem minmax(0, 1fr);
+      gap: .5rem;
+      align-items: start;
+      min-height: 2.55rem;
+      padding: .55rem .65rem .55rem .5rem;
+      color: var(--muted);
+      font-size: .86rem;
+      font-weight: 550;
+      line-height: 1.45;
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      transition: color .18s ease, background .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .chapter-nav a::before {
+      display: grid;
+      width: 1.65rem;
+      height: 1.65rem;
+      place-items: center;
+      color: var(--muted);
+      font-size: .68rem;
+      font-variant-numeric: tabular-nums;
+      content: counter(chapter, decimal-leading-zero);
+      background: var(--paper-soft);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      transition: inherit;
+    }
+    .chapter-nav a:hover,
+    .chapter-nav a:focus-visible {
+      color: var(--accent-strong);
+      background: var(--accent-soft);
+      border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+      outline: none;
+      transform: translateX(3px);
+    }
+    .chapter-nav a:hover::before,
+    .chapter-nav a:focus-visible::before {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    main {
+      min-width: 0;
+      width: 100%;
+      padding: clamp(1.5rem, 4.5vw, 4.25rem);
+      overflow: hidden;
+      background: var(--paper);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-strong);
+      line-height: 1.28;
+      margin: 1.8em 0 .65em;
+      letter-spacing: -.025em;
+      scroll-margin-top: 1.5rem;
+    }
+    h1 {
+      position: relative;
+      margin-top: 0;
+      margin-bottom: 1.15em;
+      padding-bottom: .65em;
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      line-height: 1.12;
+    }
+    h1::after {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: min(8rem, 35%);
+      height: 4px;
+      content: "";
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+      border-radius: 999px;
+    }
+    h2 {
+      position: relative;
+      padding: .2em 0 .55em 1rem;
+      font-size: clamp(1.4rem, 3vw, 1.8rem);
+      border-bottom: 1px solid var(--line);
+    }
+    h2::before {
+      position: absolute;
+      top: .3em;
+      bottom: .65em;
+      left: 0;
+      width: 4px;
+      content: "";
+      background: linear-gradient(var(--accent), var(--cyan));
+      border-radius: 999px;
+    }
+    h2:target {
+      color: var(--accent-strong);
+      border-bottom-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    }
+    h3 { font-size: 1.2rem; }
+    p, ul, ol, blockquote, pre, .table-wrap { margin: 1em 0; }
+    a { color: var(--accent-strong); text-underline-offset: .18em; }
+    a:hover { text-decoration-thickness: 2px; }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius-md);
+    }
+    blockquote {
+      margin-inline: 0;
+      padding: .8rem 1.1rem;
+      color: var(--muted);
+      background: var(--paper-soft);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+    code, pre {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      background: var(--code);
+    }
+    code {
+      padding: .13em .36em;
+      color: var(--accent-strong);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+    }
+    pre {
+      padding: 1.1rem 1.25rem;
+      overflow: auto;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+    }
+    pre code { padding: 0; color: inherit; background: none; border: 0; }
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--paper-solid);
+      border: 1px solid color-mix(in srgb, var(--line-strong) 88%, var(--accent));
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-soft);
+      scrollbar-width: thin;
+      scrollbar-color: var(--line-strong) transparent;
+    }
+    .table-wrap:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      outline-offset: 3px;
+    }
+    table {
+      width: 100%;
+      min-width: 100%;
+      margin: 0;
+      table-layout: auto;
+      border-spacing: 0;
+      border-collapse: separate;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+    th, td {
+      min-width: 7rem;
+      max-width: 24rem;
+      padding: .82rem 1rem;
+      text-align: left;
+      vertical-align: middle;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      transition: background-color .16s ease, color .16s ease;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      min-width: 7rem;
+      color: var(--accent-strong);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .035em;
+      white-space: normal;
+      background: color-mix(in srgb, var(--accent-soft) 58%, var(--paper-solid));
+      border-bottom-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+    }
+    th:last-child, td:last-child { border-right: 0; }
+    tr:last-child td { border-bottom: 0; }
+    .table-cell__content {
+      display: -webkit-box;
+      max-width: 100%;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      text-overflow: ellipsis;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
+    .table-cell__content > :first-child { margin-top: 0; }
+    .table-cell__content > :last-child { margin-bottom: 0; }
+    tbody tr:nth-child(even) td {
+      background: color-mix(in srgb, var(--paper-soft) 68%, transparent);
+    }
+    tbody tr:hover td {
+      background: var(--accent-soft);
+    }
+    tbody tr:hover .table-cell__content { color: var(--text-strong); }
+    hr { border: 0; border-top: 1px solid var(--line); }
+    @media (max-width: 900px) {
+      .page-shell {
+        display: block;
+        width: min(100% - 2rem, 920px);
+        margin: 1rem auto;
+      }
+      .chapter-nav {
+        position: static;
+        max-height: none;
+        margin-bottom: 1rem;
+      }
+      .chapter-nav__header {
+        margin-bottom: .75rem;
+        padding-bottom: .75rem;
+      }
+      .chapter-nav ol {
+        display: flex;
+        gap: .45rem;
+        overflow-x: auto;
+        padding-bottom: .2rem;
+      }
+      .chapter-nav li { flex: 0 0 auto; }
+      .chapter-nav li + li { margin-top: 0; }
+      .chapter-nav a {
+        min-height: auto;
+        grid-template-columns: 1.65rem auto;
+        white-space: nowrap;
+        background: var(--paper-soft);
+        border-color: var(--line);
+      }
+      .chapter-nav a:hover,
+      .chapter-nav a:focus-visible { transform: translateY(-2px); }
+    }
+    @media (max-width: 600px) {
+      .page-shell { width: 100%; margin: 0; }
+      .chapter-nav, main { border-radius: 0; }
+      .chapter-nav { margin: 0; border-width: 0 0 1px; }
+      main { padding: 1.35rem 1rem 2.5rem; border: 0; }
+      th, td { min-width: 6.5rem; padding: .65rem .75rem; }
+      h1 { font-size: 2rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .chapter-nav a { transition: none; }
+    }
+    @media print {
+      :root { color-scheme: light; }
+      body, main { background: #fff; }
+      body::before, .chapter-nav { display: none; }
+      .page-shell { display: block; width: 100%; margin: 0; }
+      main { width: 100%; margin: 0; padding: 0; overflow: visible; border: 0; box-shadow: none; }
+      a { color: inherit; }
+      .table-wrap { overflow: visible; border-color: #bbb; box-shadow: none; }
+      table { width: 100%; min-width: 0; }
+      th, td { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-shell">
+  <nav class="chapter-nav" aria-label="二级标题导航">
+    <div class="chapter-nav__header">
+      <span class="chapter-nav__mark" aria-hidden="true">目</span>
+      <div>
+        <p class="chapter-nav__title">内容导航</p>
+        <p class="chapter-nav__hint">快速跳转至文档章节</p>
+      </div>
+    </div>
+    <ol>
+        <li><a href="#_2">核心指标概览</a></li>
+        <li><a href="#_3">方案与执行进度</a></li>
+        <li><a href="#_4">技术说明</a></li>
+        <li><a href="#_5">后续计划</a></li>
+    </ol>
+  </nav>
+  <main id="document-start">
+<h1 id="_1">产品数据分析报告</h1>
+<p>这是一份用于验证默认模板排版、章节导航和复杂表格可读性的视觉回归样例。</p>
+<h2 id="_2">核心指标概览</h2>
+<blockquote>
+<p>表格包含短字段、较长描述与多列数据，用于确认浏览器不会把任何一列压缩成竖条。</p>
+</blockquote>
+<div class="table-wrap" role="region" aria-label="可横向滚动的数据表格" tabindex="0"><table>
+<thead><div class="table-cell__content" title="指标">
+<tr>
+<th>指标</div></th>
+<th style="text-align: right;"><div class="table-cell__content" title="当前值">当前值</div></th>
+<th style="text-align: right;"><div class="table-cell__content" title="环比变化">环比变化</div></th>
+<th style="text-align: right;"><div class="table-cell__content" title="目标值">目标值</div></th>
+<th><div class="table-cell__content" title="状态">状态</div></th>
+<th><div class="table-cell__content" title="负责人">负责人</div></th>
+<th><div class="table-cell__content" title="数据口径">数据口径</div></th>
+<th><div class="table-cell__content" title="备注">备注</div></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><div class="table-cell__content" title="月活跃用户">月活跃用户</div></td>
+<td style="text-align: right;"><div class="table-cell__content" title="1,284,320">1,284,320</div></td>
+<td style="text-align: right;"><div class="table-cell__content" title="+12.8%">+12.8%</div></td>
+<td style="text-align: right;"><div class="table-cell__content" title="1,350,000">1,350,000</div></td>
+<td><div class="table-cell__content" title="稳步增长">稳步增长</div></td>
+<td><div class="table-cell__content" title="增长团队">增长团队</div></td>
+<td><div class="table-cell__content" title="最近 30 天内至少完成一次核心操作的去重用户">最近 30 天内至少完成一次核心操作的去重用户</div></td>
+<td><div class="table-cell__content" title="新用户次日留存提升明显">新用户次日留存提升明显</div></td>
+</tr>
+<tr>
+<td><div class="table-cell__content" title="付费转化率">付费转化率</div></td>
+<td style="text-align: right;"><div class="table-cell__content" title="8.42%">8.42%</div></td>
+<td style="text-align: right;"><div class="table-cell__content" title="+0.71%">+0.71%</div></td>
+<td style="text-align: right;"><div class="table-cell__content" title="9.00%">9.00%</div></td>
+<td><div class="table-cell__content" title="接近目标">接近目标</div></td>
+<td><div class="table-cell__content" title="商业化团队">商业化团队</div></td>
+<td><div class="table-cell__content" title="付费用户数除以同期活跃用户数">付费用户数除以同期活跃用户数</div></td>
+<td><div class="table-cell__content" title="企业版本贡献了主要增量">企业版本贡献了主要增量</div></td>
+</tr>
+<tr>
+<td><div class="table-cell__content" title="平均响应时间">平均响应时间</div></td>
+<td style="text-align: right;"><div class="table-cell__content" title="186 ms">186 ms</div></td>
+<td style="text-align: right;"><div class="table-cell__content" title="-18.4%">-18.4%</div></td>
+<td style="text-align: right;"><div class="table-cell__content" title="200 ms">200 ms</div></td>
+<td><div class="table-cell__content" title="已达标">已达标</div></td>
+<td><div class="table-cell__content" title="平台团队">平台团队</div></td>
+<td><div class="table-cell__content" title="服务端 P95 响应时间，不含静态资源">服务端 P95 响应时间，不含静态资源</div></td>
+<td><div class="table-cell__content" title="高峰期仍需持续观察">高峰期仍需持续观察</div></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="_3">方案与执行进度</h2>
+<div class="table-wrap" role="region" aria-label="可横向滚动的数据表格" tabindex="0"><table>
+<thead><div class="table-cell__content" title="优先级">
+<tr>
+<th>优先级</div></th>
+<th><div class="table-cell__content" title="工作项">工作项</div></th>
+<th><div class="table-cell__content" title="方案说明">方案说明</div></th>
+<th><div class="table-cell__content" title="技术负责人">技术负责人</div></th>
+<th><div class="table-cell__content" title="计划开始">计划开始</div></th>
+<th><div class="table-cell__content" title="计划完成">计划完成</div></th>
+<th><div class="table-cell__content" title="风险等级">风险等级</div></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><div class="table-cell__content" title="P0">P0</div></td>
+<td><div class="table-cell__content" title="查询链路优化">查询链路优化</div></td>
+<td><div class="table-cell__content" title="增加热点缓存并合并重复请求，目标是降低核心接口尾延迟">增加热点缓存并合并重复请求，目标是降低核心接口尾延迟</div></td>
+<td><div class="table-cell__content" title="陈晨">陈晨</div></td>
+<td><div class="table-cell__content" title="2026-07-20">2026-07-20</div></td>
+<td><div class="table-cell__content" title="2026-08-05">2026-08-05</div></td>
+<td><div class="table-cell__content" title="中">中</div></td>
+</tr>
+<tr>
+<td><div class="table-cell__content" title="P1">P1</div></td>
+<td><div class="table-cell__content" title="导航体验升级">导航体验升级</div></td>
+<td><div class="table-cell__content" title="重构信息层级，让用户能更快识别当前章节与后续内容">重构信息层级，让用户能更快识别当前章节与后续内容</div></td>
+<td><div class="table-cell__content" title="林晓">林晓</div></td>
+<td><div class="table-cell__content" title="2026-07-24">2026-07-24</div></td>
+<td><div class="table-cell__content" title="2026-08-12">2026-08-12</div></td>
+<td><div class="table-cell__content" title="低">低</div></td>
+</tr>
+<tr>
+<td><div class="table-cell__content" title="P1">P1</div></td>
+<td><div class="table-cell__content" title="数据质量校验">数据质量校验</div></td>
+<td><div class="table-cell__content" title="为关键指标增加自动校验、异常告警和口径说明">为关键指标增加自动校验、异常告警和口径说明</div></td>
+<td><div class="table-cell__content" title="周明">周明</div></td>
+<td><div class="table-cell__content" title="2026-07-28">2026-07-28</div></td>
+<td><div class="table-cell__content" title="2026-08-18">2026-08-18</div></td>
+<td><div class="table-cell__content" title="中">中</div></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="_4">技术说明</h2>
+<p>行内代码示例：<code>python scripts/convert.py report.md</code>。</p>
+<pre><code class="language-python">def health_check() -&gt; str:
+    return &quot;ok&quot;
+</code></pre>
+<h2 id="_5">后续计划</h2>
+<ol>
+<li>验证桌面端表格横向滚动。</li>
+<li>验证窄屏导航可横向浏览。</li>
+<li>验证打印版隐藏章节导航。</li>
+</ol>
+  </main>
+</div>
+</body>
+</html>

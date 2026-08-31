@@ -1,0 +1,33 @@
+{
+  "page": {
+    "top_mm": 25.4,
+    "bottom_mm": 25.4,
+    "left_mm": 30,
+    "right_mm": 25.4
+  },
+  "fonts": {
+    "body_east_asia": "宋体",
+    "body_latin": "Times New Roman",
+    "heading_east_asia": "黑体",
+    "heading_latin": "Arial"
+  },
+  "sizes_pt": {
+    "body": 12,
+    "heading_1": 22,
+    "heading_2": 16,
+    "heading_3": 14,
+    "heading_4": 12,
+    "table": 10.5
+  },
+  "paragraph": {
+    "line_spacing": 1.5,
+    "first_line_chars": 2,
+    "space_after_pt": 0
+  },
+  "header": {
+    "enabled": true
+  },
+  "footer": {
+    "page_number": true
+  }
+}

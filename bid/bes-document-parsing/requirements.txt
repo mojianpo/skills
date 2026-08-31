@@ -1,0 +1,6 @@
+docling
+pymupdf
+python-docx
+openpyxl
+python-pptx
+requests
