@@ -61,15 +61,33 @@ Position defaults to bottom-right.
 header: "Style"
 question: "Default illustration style preference? Or type another style name or your custom style"
 options:
-  - label: "None (Recommended)"
-    description: "Auto-select based on content analysis"
+  - label: "sketch-notes (Recommended)"
+    description: "Warm cream paper, black hand-drawn lines, soft pastel blocks — educational infographic feel. Great default for most articles."
+  - label: "None"
+    description: "Auto-select based on content analysis (falls back to sketch-notes when no strong signal)"
   - label: "notion"
     description: "Minimalist hand-drawn line art"
   - label: "warm"
     description: "Friendly, approachable, personal"
 ```
 
-### Question 3: Save Location
+### Question 3: Output Directory
+
+```
+header: "Output Directory"
+question: "Where to save generated illustrations when illustrating a file?"
+options:
+  - label: "imgs-subdir (Recommended)"
+    description: "{article-dir}/imgs/ — images in a subdirectory next to the article"
+  - label: "same-dir"
+    description: "{article-dir}/ — images alongside the article file"
+  - label: "illustrations-subdir"
+    description: "{article-dir}/illustrations/ — separate illustrations subdirectory"
+  - label: "independent"
+    description: "illustrations/{topic-slug}/ — standalone directory in cwd"
+```
+
+### Question 4: Save Location
 
 ```
 header: "Save"
@@ -108,14 +126,18 @@ watermark:
 preferred_style:
   name: [selected style or null]
   description: ""
+default_output_dir: imgs-subdir  # same-dir | imgs-subdir | illustrations-subdir | independent
 language: null
+preferred_image_backend: auto
+generation_batch_size: 4
 custom_styles: []
 ---
 ```
 
+`preferred_image_backend: auto` is the baked-in default — first-time setup does not ask about it. The `## Image Generation Tools` rule in SKILL.md then prefers the skill-root `config.json` OpenAI-protocol API (`openai-api`) when configured, else picks the runtime-native tool (Codex `imagegen`, Hermes `image_generate`, etc.) when available, and falls back to installed backends.
+
+`generation_batch_size: 4` is the baked-in default for batch rendering. The current user request may override it for one run.
+
 ## Modifying Preferences Later
 
-Users can edit EXTEND.md directly or run setup again:
-- Delete EXTEND.md to trigger setup
-- Edit YAML frontmatter for quick changes
-- Full schema: `config/preferences-schema.md`
+See the `## Changing Preferences` section in `SKILL.md` for the canonical list of common edits (pin backend, change defaults, retrigger setup). Full schema: `preferences-schema.md`.
