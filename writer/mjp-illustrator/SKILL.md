@@ -121,9 +121,9 @@ description: 分析文章结构，识别需要配图的位置，使用 类型 ×
 
 | 优先级 | 路径 | 范围 |
 |--------|------|------|
-| 1 | `.mjp-skills/mjp-article-illustrator/EXTEND.md` | 项目级 |
-| 2 | `${XDG_CONFIG_HOME:-$HOME/.config}/mjp-skills/mjp-article-illustrator/EXTEND.md` | XDG |
-| 3 | `$HOME/.mjp-skills/mjp-article-illustrator/EXTEND.md` | 用户主目录 |
+| 1 | `.mjp-skills/mjp-illustrator/EXTEND.md` | 项目级 |
+| 2 | `${XDG_CONFIG_HOME:-$HOME/.config}/mjp-skills/mjp-illustrator/EXTEND.md` | XDG |
+| 3 | `$HOME/.mjp-skills/mjp-illustrator/EXTEND.md` | 用户主目录 |
 
 | 结果 | 操作 |
 |------|------|
